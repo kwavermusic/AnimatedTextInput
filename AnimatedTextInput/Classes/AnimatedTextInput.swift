@@ -174,7 +174,7 @@ open class AnimatedTextInput: UIControl {
     fileprivate func addTextInput() {
         textInput = AnimatedTextInputFieldConfigurator.configure(with: type)
         textInput.textInputDelegate = self
-        textInput.view.tintColor = style.activeColor
+        textInput.view.tintColor = UIColor.init(red: 255.0/255, green: 88.0/255, blue: 107.0/255, alpha: 1.0)
         textInput.textColor = style.textInputFontColor
         textInput.font = style.textInputFont
         textInput.view.translatesAutoresizingMaskIntoConstraints = false
