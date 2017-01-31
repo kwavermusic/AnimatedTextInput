@@ -62,9 +62,9 @@ open class AnimatedLine: UIView {
         layer.addSublayer(lineLayer)
         
         myGradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        myGradientLayer.alpha = 0
         myGradientLayer.endPoint = CGPoint(x: 1, y: 0)
-        myGradientLayer.colors = [UIColor(red: 0.0/255, green: 186.0/255, blue: 177.0/255, alpha: 1.0).cgColor,
-            UIColor(red: 11.0/255, green: 228.0/255, blue: 125.0/255, alpha: 1.0).cgColor]
+        myGradientLayer.colors = [UIColor(red: 11.0/255, green: 228.0/255, blue: 125.0/255, alpha: 1.0).cgColor,UIColor(red: 0.0/255, green: 186.0/255, blue: 177.0/255, alpha: 1.0).cgColor]
         layer.addSublayer(myGradientLayer)
     }
 
@@ -109,7 +109,7 @@ open class AnimatedLine: UIView {
     fileprivate func animateLine(to value: CGFloat) {
         let function = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         transactionAnimation(with: animationDuration, timingFuncion: function) {
-            self.lineLayer.strokeEnd = value
+            self.myGradientLayer.alpha = value
         }
     }
 }
