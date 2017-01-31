@@ -11,37 +11,37 @@ import UIKit
 }
 
 open class AnimatedTextInput: UIControl {
-
+    
     public typealias AnimatedTextInputType = AnimatedTextInputFieldConfigurator.AnimatedTextInputType
-
+    
     open var tapAction: ((Void) -> Void)?
     open  weak var delegate: AnimatedTextInputDelegate?
     open fileprivate(set) var isActive = false
-
+    
     open var type: AnimatedTextInputType = .standard {
         didSet {
             configureType()
         }
     }
-
+    
     open var returnKeyType: UIReturnKeyType! = .default {
         didSet {
             textInput.changeReturnKeyType(with: returnKeyType)
         }
     }
-
+    
     open var placeHolderText = "Test" {
         didSet {
             placeholderLayer.string = placeHolderText
         }
     }
-
+    
     open var style: AnimatedTextInputStyle = AnimatedTextInputStyleBlue() {
         didSet {
             configureStyle()
         }
     }
-
+    
     open var text: String? {
         get {
             return textInput.currentText
@@ -53,23 +53,23 @@ open class AnimatedTextInput: UIControl {
             textInput.currentText = newValue
         }
     }
-
+    
     open var selectedTextRange: UITextRange? {
         get { return textInput.currentSelectedTextRange }
         set { textInput.currentSelectedTextRange = newValue }
     }
-
+    
     open var beginningOfDocument: UITextPosition? {
         get { return textInput.currentBeginningOfDocument }
     }
-
+    
     fileprivate let lineView = AnimatedLine()
     fileprivate let placeholderLayer = CATextLayer()
     fileprivate let counterLabel = UILabel()
-    fileprivate let lineWidth: CGFloat = 4.0 / UIScreen.main.scale
+    fileprivate let lineWidth: CGFloat = 5.0 / UIScreen.main.scale
     fileprivate let counterLabelRightMargin: CGFloat = 15
     fileprivate let counterLabelTopMargin: CGFloat = 5
-
+    
     fileprivate var isResigningResponder = false
     fileprivate var isPlaceholderAsHint = false
     fileprivate var hasCounterLabel = false
@@ -79,49 +79,49 @@ open class AnimatedTextInput: UIControl {
     fileprivate var disclosureViewWidthConstraint: NSLayoutConstraint!
     fileprivate var disclosureView: UIView?
     fileprivate var placeholderErrorText: String?
-
+    
     fileprivate var placeholderPosition: CGPoint {
         let hintPosition = CGPoint(x: style.leftMargin, y: style.yHintPositionOffset)
         let defaultPosition = CGPoint(x: style.leftMargin, y: style.topMargin + style.yPlaceholderPositionOffset)
         return isPlaceholderAsHint ? hintPosition : defaultPosition
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-
+        
         setupCommonElements()
     }
-
+    
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
+        
         setupCommonElements()
     }
-
+    
     override open var intrinsicContentSize: CGSize {
         let normalHeight = textInput.view.intrinsicContentSize.height
         return CGSize(width: UIViewNoIntrinsicMetric, height: normalHeight + style.topMargin + style.bottomMargin)
     }
-
+    
     open override func updateConstraints() {
         addLineViewConstraints()
         addTextInputConstraints()
         super.updateConstraints()
     }
-
+    
     open override func layoutSubviews() {
         super.layoutSubviews()
         layoutPlaceholderLayer()
     }
-
+    
     fileprivate func layoutPlaceholderLayer() {
         // Some letters like 'g' or 'á' were not rendered properly, the frame need to be about 20% higher than the font size
         let frameHeightCorrectionFactor: CGFloat = 1.2
         placeholderLayer.frame = CGRect(origin: placeholderPosition, size: CGSize(width: bounds.width, height: style.textInputFont.pointSize * frameHeightCorrectionFactor))
     }
-
+    
     // mark: Configuration
-
+    
     fileprivate func addLineViewConstraints() {
         pinLeading(toLeadingOf: lineView, constant: style.leftMargin)
         pinTrailing(toTrailingOf: lineView, constant: style.rightMargin)
@@ -129,7 +129,7 @@ open class AnimatedTextInput: UIControl {
         let constant = hasCounterLabel ? -counterLabel.intrinsicContentSize.height - counterLabelTopMargin : 0
         pinBottom(toBottomOf: lineView, constant: constant)
     }
-
+    
     fileprivate func addTextInputConstraints() {
         pinLeading(toLeadingOf: textInput.view, constant: style.leftMargin)
         if disclosureView == nil {
@@ -138,20 +138,22 @@ open class AnimatedTextInput: UIControl {
         pinTop(toTopOf: textInput.view, constant: style.topMargin)
         textInput.view.pinBottom(toTopOf: lineView, constant: style.bottomMargin)
     }
-
+    
     fileprivate func setupCommonElements() {
         addLine()
         addPlaceHolder()
         addTapGestureRecognizer()
         addTextInput()
     }
-
+    
     fileprivate func addLine() {
         lineView.defaultColor = style.lineInactiveColor
+        lineView.layer.cornerRadius = 1
+        lineView.clipsToBounds = true
         lineView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(lineView)
     }
-
+    
     fileprivate func addPlaceHolder() {
         placeholderLayer.masksToBounds = false
         placeholderLayer.string = placeHolderText
@@ -163,12 +165,12 @@ open class AnimatedTextInput: UIControl {
         layoutPlaceholderLayer()
         layer.addSublayer(placeholderLayer)
     }
-
+    
     fileprivate func addTapGestureRecognizer() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewWasTapped))
         addGestureRecognizer(tap)
     }
-
+    
     fileprivate func addTextInput() {
         textInput = AnimatedTextInputFieldConfigurator.configure(with: type)
         textInput.textInputDelegate = self
@@ -179,16 +181,16 @@ open class AnimatedTextInput: UIControl {
         addSubview(textInput.view)
         invalidateIntrinsicContentSize()
     }
-
+    
     fileprivate func updateCounter() {
         guard let counterText = counterLabel.text else { return }
         let components = counterText.components(separatedBy: "/")
         let characters = (text != nil) ? text!.characters.count : 0
         counterLabel.text = "\(characters)/\(components[1])"
     }
-
+    
     // mark: States and animations
-
+    
     fileprivate func configurePlaceholderAsActiveHint() {
         isPlaceholderAsHint = true
         configurePlaceholderWith(fontSize: style.placeholderMinFontSize,
@@ -196,7 +198,7 @@ open class AnimatedTextInput: UIControl {
                                  text: placeHolderText)
         lineView.fillLine(with: style.activeColor)
     }
-
+    
     fileprivate func configurePlaceholderAsInactiveHint() {
         isPlaceholderAsHint = true
         configurePlaceholderWith(fontSize: style.placeholderMinFontSize,
@@ -204,7 +206,7 @@ open class AnimatedTextInput: UIControl {
                                  text: placeHolderText)
         lineView.animateToInitialState()
     }
-
+    
     fileprivate func configurePlaceholderAsDefault() {
         isPlaceholderAsHint = false
         configurePlaceholderWith(fontSize: style.textInputFont.pointSize,
@@ -212,7 +214,7 @@ open class AnimatedTextInput: UIControl {
                                  text: placeHolderText)
         lineView.animateToInitialState()
     }
-
+    
     fileprivate func configurePlaceholderAsErrorHint() {
         isPlaceholderAsHint = true
         configurePlaceholderWith(fontSize: style.placeholderMinFontSize,
@@ -220,22 +222,22 @@ open class AnimatedTextInput: UIControl {
                                  text: placeholderErrorText)
         lineView.fillLine(with: style.errorColor)
     }
-
+    
     fileprivate func configurePlaceholderWith(fontSize: CGFloat, foregroundColor: CGColor, text: String?) {
         placeholderLayer.fontSize = fontSize
         placeholderLayer.foregroundColor = foregroundColor
         placeholderLayer.string = text
         layoutPlaceholderLayer()
     }
-
+    
     fileprivate func animatePlaceholder(to applyConfiguration: (Void) -> Void) {
         let duration = 0.2
         let function = CAMediaTimingFunction(controlPoints: 0.3, 0.0, 0.5, 0.95)
         transactionAnimation(with: duration, timingFuncion: function, animations: applyConfiguration)
     }
-
+    
     // mark: Behaviours
-
+    
     @objc fileprivate func viewWasTapped(sender: UIGestureRecognizer) {
         if let tapAction = tapAction {
             tapAction()
@@ -243,7 +245,7 @@ open class AnimatedTextInput: UIControl {
             becomeFirstResponder()
         }
     }
-
+    
     fileprivate func styleDidChange() {
         lineView.defaultColor = style.lineInactiveColor
         placeholderLayer.foregroundColor = style.inactiveColor.cgColor
@@ -256,7 +258,7 @@ open class AnimatedTextInput: UIControl {
         invalidateIntrinsicContentSize()
         layoutIfNeeded()
     }
-
+    
     @discardableResult override open func becomeFirstResponder() -> Bool {
         isActive = true
         let firstResponder = textInput.view.becomeFirstResponder()
@@ -265,11 +267,11 @@ open class AnimatedTextInput: UIControl {
         animatePlaceholder(to: configurePlaceholderAsActiveHint)
         return firstResponder
     }
-
+    
     override open var isFirstResponder: Bool {
         return textInput.view.isFirstResponder
     }
-
+    
     override open func resignFirstResponder() -> Bool {
         guard !isResigningResponder else { return true }
         isActive = false
@@ -277,18 +279,18 @@ open class AnimatedTextInput: UIControl {
         let resignFirstResponder = textInput.view.resignFirstResponder()
         isResigningResponder = false
         counterLabel.textColor = style.inactiveColor
-
+        
         if let textInputError = textInput as? TextInputError {
             textInputError.removeErrorHintMessage()
         }
-
+        
         // If the placeholder is showing an error we want to keep this state. Otherwise revert to inactive state.
         if placeholderErrorText == nil {
             animateToInactiveState()
         }
         return resignFirstResponder
     }
-
+    
     fileprivate func animateToInactiveState() {
         guard let text = textInput.currentText, !text.isEmpty else {
             animatePlaceholder(to: configurePlaceholderAsDefault)
@@ -296,11 +298,11 @@ open class AnimatedTextInput: UIControl {
         }
         animatePlaceholder(to: configurePlaceholderAsInactiveHint)
     }
-
+    
     override open var canResignFirstResponder: Bool {
         return textInput.view.canResignFirstResponder
     }
-
+    
     override open var canBecomeFirstResponder: Bool {
         guard !isResigningResponder else { return false }
         if let disclosureView = disclosureView, disclosureView.isFirstResponder {
@@ -308,7 +310,7 @@ open class AnimatedTextInput: UIControl {
         }
         return textInput.view.canBecomeFirstResponder
     }
-
+    
     open func show(error errorMessage: String, placeholderText: String? = nil) {
         placeholderErrorText = errorMessage
         if let textInput = textInput as? TextInputError {
@@ -316,7 +318,7 @@ open class AnimatedTextInput: UIControl {
         }
         animatePlaceholder(to: configurePlaceholderAsErrorHint)
     }
-
+    
     open func clearError() {
         placeholderErrorText = nil
         if let textInputError = textInput as? TextInputError {
@@ -328,12 +330,12 @@ open class AnimatedTextInput: UIControl {
             animateToInactiveState()
         }
     }
-
+    
     fileprivate func configureType() {
         textInput.view.removeFromSuperview()
         addTextInput()
     }
-
+    
     fileprivate func configureStyle() {
         styleDidChange()
         if isActive {
@@ -342,7 +344,7 @@ open class AnimatedTextInput: UIControl {
             isPlaceholderAsHint ? configurePlaceholderAsInactiveHint() : configurePlaceholderAsDefault()
         }
     }
-
+    
     open func showCharacterCounterLabel(with maximum: Int) {
         let characters = (text != nil) ? text!.characters.count : 0
         counterLabel.text = "\(characters)/\(maximum)"
@@ -353,19 +355,19 @@ open class AnimatedTextInput: UIControl {
         addCharacterCounterConstraints()
         invalidateIntrinsicContentSize()
     }
-
+    
     fileprivate func addCharacterCounterConstraints() {
         lineView.pinBottom(toTopOf: counterLabel, constant: counterLabelTopMargin)
         pinTrailing(toTrailingOf: counterLabel, constant: counterLabelRightMargin)
     }
-
+    
     open func removeCharacterCounterLabel() {
         counterLabel.removeConstraints(counterLabel.constraints)
         counterLabel.removeFromSuperview()
         lineToBottomConstraint.constant = 0
         invalidateIntrinsicContentSize()
     }
-
+    
     open func addDisclosureView(disclosureView: UIView) {
         if let constraint = textInputTrailingConstraint {
             removeConstraint(constraint)
@@ -378,7 +380,7 @@ open class AnimatedTextInput: UIControl {
         disclosureView.pinBottom(toBottomOf: self, constant: 12)
         disclosureView.pinTrailing(toTrailingOf: self, constant: 16)
     }
-
+    
     open func removeDisclosureView() {
         guard disclosureView != nil else { return }
         disclosureView?.removeFromSuperview()
@@ -386,41 +388,41 @@ open class AnimatedTextInput: UIControl {
         textInput.view.removeConstraint(textInputTrailingConstraint)
         textInputTrailingConstraint = pinTrailing(toTrailingOf: textInput.view, constant: style.rightMargin)
     }
-
+    
     open func position(from: UITextPosition, offset: Int) -> UITextPosition? {
         return textInput.currentPosition(from: from, offset: offset)
     }
 }
 
 extension AnimatedTextInput: TextInputDelegate {
-
+    
     open func textInputDidBeginEditing(textInput: TextInput) {
         becomeFirstResponder()
         delegate?.animatedTextInputDidBeginEditing?(animatedTextInput: self)
     }
-
+    
     open func textInputDidEndEditing(textInput: TextInput) {
         resignFirstResponder()
         delegate?.animatedTextInputDidEndEditing?(animatedTextInput: self)
     }
-
+    
     open func textInputDidChange(textInput: TextInput) {
         updateCounter()
         delegate?.animatedTextInputDidChange?(animatedTextInput: self)
     }
-
+    
     open func textInput(textInput: TextInput, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         return delegate?.animatedTextInput?(animatedTextInput: self, shouldChangeCharactersInRange: range, replacementString: string) ?? true
     }
-
+    
     open func textInputShouldBeginEditing(textInput: TextInput) -> Bool {
         return delegate?.animatedTextInputShouldBeginEditing?(animatedTextInput: self) ?? true
     }
-
+    
     open func textInputShouldEndEditing(textInput: TextInput) -> Bool {
         return delegate?.animatedTextInputShouldEndEditing?(animatedTextInput: self) ?? true
     }
-
+    
     open func textInputShouldReturn(textInput: TextInput) -> Bool {
         return delegate?.animatedTextInputShouldReturn?(animatedTextInput: self) ?? true
     }
@@ -428,14 +430,14 @@ extension AnimatedTextInput: TextInputDelegate {
 
 public protocol TextInput {
     var view: UIView { get }
-
+    
     var currentText: String? { get set }
     var font: UIFont? { get set }
     var textColor: UIColor? { get set }
     weak var textInputDelegate: TextInputDelegate? { get set }
     var currentSelectedTextRange: UITextRange? { get set }
     var currentBeginningOfDocument: UITextPosition? { get }
-
+    
     func changeReturnKeyType(with newReturnKeyType: UIReturnKeyType)
     func currentPosition(from: UITextPosition, offset: Int) -> UITextPosition?
 }
