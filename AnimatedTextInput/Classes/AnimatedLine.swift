@@ -8,6 +8,7 @@ open class AnimatedLine: UIView {
     }
 
     fileprivate let lineLayer = CAShapeLayer()
+    fileprivate let myGradientLayer = CAGradientLayer()
 
     var animationDuration: Double = 0.4
 
@@ -44,6 +45,7 @@ open class AnimatedLine: UIView {
         super.layoutSubviews()
 
         lineLayer.frame = bounds
+        myGradientLayer.frame = bounds
         lineLayer.lineWidth = bounds.height
         updatePath()
     }
@@ -58,6 +60,12 @@ open class AnimatedLine: UIView {
         updatePath()
         lineLayer.strokeEnd = 0
         layer.addSublayer(lineLayer)
+        
+        myGradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        myGradientLayer.endPoint = CGPoint(x: 1, y: 0)
+        myGradientLayer.colors = [UIColor(red: 0.0/255, green: 186.0/255, blue: 177.0/255, alpha: 1.0).cgColor,
+            UIColor(red: 11.0/255, green: 228.0/255, blue: 125.0/255, alpha: 1.0).cgColor]
+        layer.addSublayer(myGradientLayer)
     }
 
     fileprivate func updatePath() {
@@ -87,6 +95,9 @@ open class AnimatedLine: UIView {
         }
         lineLayer.strokeColor = color.cgColor
         lineLayer.strokeEnd = 0
+        
+        
+        
         animateLine(to: 1.0)
     }
 
