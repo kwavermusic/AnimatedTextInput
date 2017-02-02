@@ -62,7 +62,7 @@ open class AnimatedLine: UIView {
         layer.addSublayer(lineLayer)
         
         myGradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        myGradientLayer.endPoint = CGPoint(x: 0, y: 0)
+        myGradientLayer.endPoint = CGPoint(x: 1, y: 0)
         myGradientLayer.colors = [UIColor(red: 11.0/255, green: 228.0/255, blue: 125.0/255, alpha: 1.0).cgColor,UIColor(red: 0.0/255, green: 186.0/255, blue: 177.0/255, alpha: 1.0).cgColor]
         layer.addSublayer(myGradientLayer)
         
@@ -98,12 +98,12 @@ open class AnimatedLine: UIView {
         
         
         
-        animateLine(to: 1.0)
+        // animateLine(to: 1.0)
     }
     
     func animateToInitialState() {
         backgroundColor = defaultColor
-        animateLine(to: 0.0)
+        // animateLine(to: 0.0)
     }
     
     fileprivate func animateLine(to value: CGFloat) {
