@@ -35,6 +35,7 @@ final internal class AnimatedTextField: UITextField {
 
     fileprivate func setup() {
         delegate = self
+        self.keyboardAppearance = .dark
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
 
