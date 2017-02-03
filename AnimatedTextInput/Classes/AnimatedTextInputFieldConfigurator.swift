@@ -1,7 +1,7 @@
 import UIKit
 
 public struct AnimatedTextInputFieldConfigurator {
-
+    
     public enum AnimatedTextInputType {
         case standard
         case email
@@ -9,9 +9,11 @@ public struct AnimatedTextInputFieldConfigurator {
         case numeric
         case selection
         case multiline
+        case username
+        case name
         case generic(textInput: TextInput)
     }
-
+    
     static func configure(with type: AnimatedTextInputType) -> TextInput {
         switch type {
         case .standard:
@@ -26,6 +28,10 @@ public struct AnimatedTextInputFieldConfigurator {
             return AnimatedTextInputSelectionConfigurator.generate()
         case .multiline:
             return AnimatedTextInputMultilineConfigurator.generate()
+        case .username:
+            return AnimatedTextInputUsernameConfigurator.generate()
+        case .name:
+            return AnimatedTextInputNameConfigurator.generate()
         case .generic(let textInput):
             return textInput
         }
@@ -33,7 +39,7 @@ public struct AnimatedTextInputFieldConfigurator {
 }
 
 fileprivate struct AnimatedTextInputTextConfigurator {
-
+    
     static func generate() -> TextInput {
         let textField = AnimatedTextField()
         textField.clearButtonMode = .whileEditing
@@ -44,7 +50,7 @@ fileprivate struct AnimatedTextInputTextConfigurator {
 }
 
 fileprivate struct AnimatedTextInputEmailConfigurator {
-
+    
     static func generate() -> TextInput {
         let textField = AnimatedTextField()
         textField.clearButtonMode = .whileEditing
@@ -55,8 +61,30 @@ fileprivate struct AnimatedTextInputEmailConfigurator {
     }
 }
 
-fileprivate struct AnimatedTextInputPasswordConfigurator {
+fileprivate struct AnimatedTextInputUsernameConfigurator {
+    
+    static func generate() -> TextInput {
+        let textField = AnimatedTextField()
+        textField.clearButtonMode = .whileEditing
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        return textField
+    }
+}
 
+fileprivate struct AnimatedTextInputNameConfigurator {
+    
+    static func generate() -> TextInput {
+        let textField = AnimatedTextField()
+        textField.clearButtonMode = .whileEditing
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .words
+        return textField
+    }
+}
+
+fileprivate struct AnimatedTextInputPasswordConfigurator {
+    
     static func generate() -> TextInput {
         let textField = AnimatedTextField()
         textField.rightViewMode = .whileEditing
@@ -80,7 +108,7 @@ fileprivate struct AnimatedTextInputPasswordConfigurator {
 }
 
 fileprivate struct AnimatedTextInputNumericConfigurator {
-
+    
     static func generate() -> TextInput {
         let textField = AnimatedTextField()
         textField.clearButtonMode = .whileEditing
@@ -91,7 +119,7 @@ fileprivate struct AnimatedTextInputNumericConfigurator {
 }
 
 fileprivate struct AnimatedTextInputSelectionConfigurator {
-
+    
     static func generate() -> TextInput {
         let textField = AnimatedTextField()
         let bundle = Bundle(path: Bundle(for: AnimatedTextInput.self).path(forResource: "AnimatedTextInput", ofType: "bundle")!)
@@ -104,7 +132,7 @@ fileprivate struct AnimatedTextInputSelectionConfigurator {
 }
 
 fileprivate struct AnimatedTextInputMultilineConfigurator {
-
+    
     static func generate() -> TextInput {
         let textView = AnimatedTextView()
         textView.textContainerInset = .zero
